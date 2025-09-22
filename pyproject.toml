@@ -1,0 +1,16 @@
+[project]
+name = "LearnifyAPI"
+version = "0.1.0"
+description = "Python lib for Learnify API"
+authors = [{name="Mag329", email="vanyamashoha@vk.com"}]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+dependencies = [
+    "aiohttp",
+    "pydantic"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
