@@ -108,19 +108,13 @@ class AsyncAPIClient:
 
                 if isinstance(json_response, dict):
                     raise APIError(
-                        url=str(response.url),
                         status_code=response.status,
-                        error_types=json_response.get("type", "?"),
-                        description=json_response.get("description", json_response),
-                        details=json_response.get("details", response),
+                        message=json_response.get("description", str(json_response))
                     )
             except (JSONDecodeError, aiohttp.ContentTypeError) as error:
                 raise APIError(
-                    url=str(response.url),
                     status_code=response.status,
-                    error_types=["ServerError", "ContentTypeError"],
-                    description=(await response.text()),
-                    details=response,
+                    message=json_response.get("description", str(json_response))
                 ) from error
 
     async def request(
@@ -138,45 +132,45 @@ class AsyncAPIClient:
     ):
         if not self.session:
             raise RuntimeError(
-                "Session not initialized. Use `async with AsyncAPIClient(...)`."
+                "Session not initialized. Use `async with AsyncAPIClient(...)` or call `await client.__aenter__()`."
             )
 
         params = kwargs.pop("params", {})
 
-        async with aiohttp.ClientSession() as session:
-            async with session.request(
-                method=method,
-                url=self.init_params(self.base_url + path, params),
-                headers=self.headers(required_token, custom_headers),
-                **kwargs,
-            ) as response:
-                await self._check_response(response)
-                raw_text = await response.text()
+        # Используем self.session, а не создаём новый
+        async with self.session.request(
+            method=method,
+            url=self.init_params(self.base_url + path, params),
+            headers=self.headers(required_token, custom_headers),
+            **kwargs,
+        ) as response:
+            await self._check_response(response)
+            raw_text = await response.text()
 
-                if not raw_text:
-                    return None
+            if not raw_text:
+                return None
 
-                return (
-                    response
-                    if return_raw_response
+            return (
+                response
+                if return_raw_response
+                else (
+                    await response.json()
+                    if return_json
                     else (
-                        await response.json()
-                        if return_json
+                        raw_text
+                        if return_raw_text
                         else (
-                            raw_text
-                            if return_raw_text
+                            self.parse_list_models(model, raw_text)
+                            if is_list
                             else (
-                                self.parse_list_models(model, raw_text)
-                                if is_list
-                                else (
-                                    model.model_validate_json(raw_text)
-                                    if model
-                                    else raw_text
-                                )
+                                model.model_validate_json(raw_text)
+                                if model
+                                else raw_text
                             )
                         )
                     )
                 )
+            )
 
     async def create_user(
         self,
