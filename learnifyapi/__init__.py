@@ -1,4 +1,4 @@
-from .client import AsyncAPIClient
+from .client import LearnifyAPI
 from .exceptions import APIError
 
-__all__ = ["AsyncAPIClient", "APIError"]
+__all__ = ["LearnifyAPI", "APIError"]

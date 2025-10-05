@@ -12,7 +12,7 @@ from .exceptions import APIError
 _type = TypeVar("_type")
 
 
-class AsyncAPIClient:
+class LearnifyAPI:
     def __init__(
         self, token: str, base_url: str = "https://learnify.mag329.tech/api/v1"
     ):
@@ -102,7 +102,7 @@ class AsyncAPIClient:
 
     @staticmethod
     async def _check_response(response: aiohttp.ClientResponse):
-        if response.status > 400:
+        if response.status >= 400:
             try:
                 json_response = await response.json()
 
