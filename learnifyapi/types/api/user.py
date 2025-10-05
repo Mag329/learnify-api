@@ -11,4 +11,4 @@ class User(Type):
     payed_at: Optional[DT] = None
     expires_at: Optional[DT] = None
     is_active: bool
-    plan_type: str
+    plan_type: Optional[str] = None
