@@ -316,7 +316,7 @@ class LearnifyAPI:
             model=Book,
         )
 
-    async def update_user(
+    async def update_book(
         self,
         user_id: int,
         book_id: int,
@@ -347,7 +347,7 @@ class LearnifyAPI:
             params={"user_id": user_id},
         )
         
-    async def delete_user(self, user_id: int, book_id: int) -> None:
+    async def delete_book(self, user_id: int, book_id: int) -> None:
         await self.request(
             method="DELETE",
             path=f"/premium/gdz/books/{book_id}",
