@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta, timezone
 from json import JSONDecodeError
 from typing import Optional, TypeVar, Union
+from urllib.parse import quote
 
 import aiohttp
 from pydantic import RootModel
@@ -50,30 +51,23 @@ class LearnifyAPI:
     @staticmethod
     def init_params(url: str, params: dict) -> str:
         boolean = {True: "true", False: "false"}
-        return (
-            (
-                f"{url}?"
-                + "&".join(
-                    [
-                        f"{X}={Y}"
-                        for X, Y in {
-                            X: (
-                                Y
-                                if isinstance(Y, (str, float, int))
-                                else (
-                                    boolean[Y]
-                                    if isinstance(Y, bool)
-                                    else "null" if Y is None else str(Y)
-                                )
-                            )
-                            for X, Y in params.items()
-                        }.items()
-                    ]
-                )
-            )
-            if params
-            else url
-        )
+        if not params:
+            return url
+
+        encoded_params = []
+        for key, value in params.items():
+            if isinstance(value, (str, float, int)):
+                safe_value = str(value)
+            elif isinstance(value, bool):
+                safe_value = boolean[value]
+            elif value is None:
+                safe_value = "null"
+            else:
+                safe_value = str(value)
+
+            encoded_params.append(f"{key}={quote(safe_value)}")
+
+        return f"{url}?" + "&".join(encoded_params)
 
     @staticmethod
     def datetime_to_string(dt: Optional[Union[datetime, date]] = None) -> str:
