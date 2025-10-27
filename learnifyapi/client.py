@@ -351,16 +351,19 @@ class LearnifyAPI:
         
     async def get_gdz_answers(
         self,
-        task_text: str,
+        task_text: Optional[str] = None,
         user_id: Optional[int] = None,
         book_id: Optional[int] = None,
         subject_id: Optional[int] = None,
         subject_name: Optional[str] = None,
         book_url: Optional[str] = None,
-        search_by: Optional[str] = None
+        search_by: Optional[str] = None,
+        number: Optional[int] = None
     ):
-        params = {"task_text": task_text}
+        params = {}
 
+        if task_text is not None:
+            params["task_text"] = task_text
         if user_id is not None:
             params["user_id"] = user_id
         if book_id is not None:
@@ -373,7 +376,9 @@ class LearnifyAPI:
             params["book_url"] = book_url
         if search_by is not None:
             params["search_by"] = search_by
-
+        if number is not None:
+            params["number"] = number
+            
         return await self.request(
             method="GET",
             path="/premium/gdz/books/gdz",

@@ -26,5 +26,5 @@ class GdzAnswer(Type):
     subject_id: Optional[int]
     subject_name: Optional[str]
     book_url: str
-    task_text: str
+    task_text: Optional[str]
     solutions: List[GdzSolution]
